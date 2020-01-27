@@ -6,9 +6,9 @@
 ///SETTINGS///
 //////////////
 
-//#define serialdebug //Serial Printouts for debugging
+#define serialdebug //Serial Printouts for debugging
 
-//#define shortenedDebugTimes //Shorten sleep and stabilize time to allow for easier debugging
+#define shortenedDebugTimes //Shorten sleep and stabilize time to allow for easier debugging
 
 #define moisturePercentToWater 15 //At what soil moisture percent should the pump come on?
 
@@ -58,17 +58,18 @@ char pass[] = "buster95"; //Wifi Password
 
 //Virtual Pins//
 
-#define vWateringOnOff 0
-#define vWateringAmount 1
-#define vLowWaterLevelIndicator 4
-#define vLowBatteryIndicator 3
-#define vMoistureLevel 2
+#define vWateringOnOff V0
+#define vWateringAmount V1
+#define vLowWaterLevelIndicator V4
+#define vLowBatteryIndicator V3
+#define vMoistureLevel V2
 
 //////////////////////
 ///global Variables///
 //////////////////////
 int soilMoisture = 0;
 bool battLev = 0;
+byte waterLevel;
 byte a = 0; // variable to lock into sensor mode
 byte b = 0; // variabe to lock into pump mode
 byte c = 0; //variable to lock into batt sense mode
@@ -111,7 +112,7 @@ void setup()
   Serial.begin(115200);
 
   //connect to blynk//
-  connect();
+ connect();
 
   Blynk.run();
 
@@ -132,7 +133,9 @@ void setup()
   Serial.println(waterMl);
   #endif
 
-  if(soilMoisture < moisturePercentToWater && waterOnOff == 1 && digitalRead(waterLevelSensor == 1)) okToWater = 1;
+  waterLevel = digitalRead(waterLevelSensor);
+
+  if(soilMoisture < moisturePercentToWater && waterOnOff == 1 && waterLevel) okToWater = 1;
   else okToWater = 0;
 
   #ifdef serialdebug
@@ -162,13 +165,31 @@ void setup()
   if(battLev == 0) Blynk.virtualWrite(vLowBatteryIndicator, 0);
   else Blynk.virtualWrite(vLowBatteryIndicator, 255);
 
-  if(digitalRead(waterLevelSensor == 0)) Blynk.virtualWrite(vLowWaterLevelIndicator, 255);
-  else Blynk.virtualWrite(vLowWaterLevelIndicator, 0);
+  //write water level to blynk//
+  if(waterLevel == 1) {
+  
+  #ifdef serialdebug
+    Serial.println("Water level Low");
+  #endif
 
- //write sensor val Blynk//
- Blynk.virtualWrite(vMoistureLevel, (soilMoisture));
+  Blynk.virtualWrite(vLowWaterLevelIndicator, 255);
 
- Blynk.run();
+  }
+
+  else {
+  
+  #ifdef serialdebug
+    Serial.println("Water level Ok");
+  #endif
+
+  Blynk.virtualWrite(vLowWaterLevelIndicator, 0);
+
+  }
+
+  //write sensor val Blynk//
+  Blynk.virtualWrite(vMoistureLevel, (soilMoisture));
+  
+  Blynk.run();
 
   delay(1500);
 
@@ -179,4 +200,4 @@ void setup()
 
 void loop() {
 
-}
+ }

@@ -2,7 +2,6 @@
 /////////////////////////////////Sensor Functions/////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
 
-
 ///////////////////////////
 ///Read Moisture Sensor///
 //////////////////////////
@@ -21,6 +20,8 @@ byte readSensor() {
     //turn on sensor//
     sensorOn(HIGH);
 
+    currentMillis = millis();
+
     #ifdef serialdebug
         Serial.print("Sensor Time Elapsed - ");
         Serial.print((currentMillis - connectMillis)*0.001, 0);
@@ -30,7 +31,6 @@ byte readSensor() {
     #endif
 
     //wait for sensorStabilizeSeconds to be greater than current seconds//
-    currentMillis = millis();
     if(currentMillis - connectMillis > (sensorStabilizeSeconds*1000)) {
 
         //take 15 readings 1 per second//
