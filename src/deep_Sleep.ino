@@ -13,7 +13,7 @@ void connect() {
     Blynk.begin(auth, ssid, pass);
     delay(1000);
 
-    //check if blynk is connectd//
+    //check if blynk is connected//
     if(Blynk.connected() == 1) {
 
         #ifdef serialdebug

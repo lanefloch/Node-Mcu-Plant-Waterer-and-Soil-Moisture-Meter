@@ -71,7 +71,7 @@ int soilMoisture = 0;
 bool battLev = 0;
 byte waterLevel;
 byte a = 0; // variable to lock into sensor mode
-byte b = 0; // variabe to lock into pump mode
+byte b = 0; // variable to lock into pump mode
 byte c = 0; //variable to lock into batt sense mode
 unsigned long currentMillis;
 unsigned long lastSensorMillis;
