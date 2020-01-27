@@ -193,6 +193,18 @@ void setup()
 
   delay(1500);
 
+  if(battLev > 0) {
+    WiFi.mode(WIFI_OFF);
+    WiFi.forceSleepBegin();
+    delay(10);
+    while(true){
+      digitalWrite(lowBattLed, HIGH);
+      delay(550);
+      digitalWrite(lowBattLed, LOW);
+      delay(550);
+    }
+  }
+
   //sleep//
   goToSleep();
 
