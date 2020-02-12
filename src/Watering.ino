@@ -5,7 +5,10 @@
 void pump(bool water) {
 
     Blynk.run();
+    
     int waterSeconds = (waterMl * 0.29);
+
+    currentMillis = millis();
 
     if(water == 1) {
 
@@ -14,8 +17,6 @@ void pump(bool water) {
         #endif
 
         digitalWrite(pumpPin, HIGH);
-
-        currentMillis = millis();
 
         #ifdef serialdebug
             Serial.print("Pumped ");

@@ -11,7 +11,7 @@ void connect() {
 
     //initialize blynk//
     Blynk.begin(auth, ssid, pass);
-    delay(1000);
+
 
     //check if blynk is connected//
     if(Blynk.connected() == 1) {
@@ -19,7 +19,7 @@ void connect() {
         #ifdef serialdebug
             Serial.println("Connected to Blynk");
         #endif
-
+        connected = 1;
         return; //do nothing//
 
     }
@@ -29,18 +29,8 @@ void connect() {
             Serial.println("Failed to connect, trying again");
         #endif
 
-        //Blink LED//
-        digitalWrite(lowBattLed, HIGH);
-        delay(1500);
-        digitalWrite(lowBattLed, LOW);
-        delay(1500);
-        digitalWrite(lowBattLed, HIGH);
-        delay(1500);
-        digitalWrite(lowBattLed, LOW);
-        delay(1500);
-        digitalWrite(lowBattLed, HIGH);
-        delay(1500);
-        digitalWrite(lowBattLed, LOW);
+        //Blink LED 5 Times//
+        blinkLED(5);
         
         //go back and try again//
         connect();
@@ -60,4 +50,29 @@ void goToSleep() {
     ESP.deepSleep(sleepTime);
 
     delay(100);
+}
+
+
+bool state = 1;
+unsigned long lastBlink;
+
+void blinkLED(byte blinkAmount){
+
+    for(byte i = 0; i < blinkAmount; i=i){
+
+        if(millis() - lastBlink > 800) {
+            Blynk.run();
+            i++;
+            lastBlink = millis();
+            if(state == LOW) state = HIGH;
+            else if(state == HIGH) state = LOW;
+        }
+
+        #ifdef serialdebug
+            Serial.println("blinking lowBattLed");
+        #endif
+
+        digitalWrite(lowBattLed, state);
+    }
+    digitalWrite(lowBattLed, LOW);
 }

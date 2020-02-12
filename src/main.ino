@@ -69,6 +69,7 @@ char pass[] = "buster95"; //Wifi Password
 //////////////////////
 int soilMoisture = 0;
 bool battLev = 0;
+bool connected = 0;
 byte waterLevel;
 byte a = 0; // variable to lock into sensor mode
 byte b = 0; // variable to lock into pump mode
@@ -111,21 +112,26 @@ void setup()
   // Debug console
   Serial.begin(115200);
 
+  blinkLED(10);
+}
+
+void loop() {
   //connect to blynk//
- connect();
+  if(connected == 0) connect(); connectMillis = millis();
 
   Blynk.run();
 
-  connectMillis = millis();
-  
    //Read sensor//
-   while(a == 0) {
-     soilMoisture = readSensor();
-     delay(150);
-   }
+  while(a == 0) {
+    soilMoisture = readSensor();
+  }
 
-   lastSensorMillis = millis();
-   
+  lastSensorMillis = millis();
+
+  while(true) Serial.println("done"); delay(1500);
+
+  return;
+
   #ifdef serialdebug
   Serial.print("waterOnOff = ");
   Serial.println(waterOnOff);
@@ -146,7 +152,6 @@ void setup()
    //pump water//
    while(b == 0){
      pump(okToWater);
-     delay(150);
    }
 
   lastPumpMillis = millis();
@@ -155,7 +160,6 @@ void setup()
   bool battLev;
   while(c == 0)  {
    battLev = readBatteryLevel();
-   delay(150);
  }
 
  //illuminate low batt led based on battlev//
@@ -168,48 +172,36 @@ void setup()
   //write water level to blynk//
   if(waterLevel == 1) {
   
-  #ifdef serialdebug
-    Serial.println("Water level Low");
-  #endif
+    #ifdef serialdebug
+      Serial.println("Water level Low");
+    #endif
 
-  Blynk.virtualWrite(vLowWaterLevelIndicator, 255);
+    Blynk.virtualWrite(vLowWaterLevelIndicator, 255);
 
   }
 
   else {
   
-  #ifdef serialdebug
-    Serial.println("Water level Ok");
-  #endif
+    #ifdef serialdebug
+      Serial.println("Water level Ok");
+    #endif
 
-  Blynk.virtualWrite(vLowWaterLevelIndicator, 0);
+    Blynk.virtualWrite(vLowWaterLevelIndicator, 0);
 
   }
 
   //write sensor val Blynk//
   Blynk.virtualWrite(vMoistureLevel, (soilMoisture));
   
-  Blynk.run();
-
-  delay(1500);
-
   if(battLev > 0) {
     WiFi.mode(WIFI_OFF);
     WiFi.forceSleepBegin();
     delay(10);
     while(true){
-      digitalWrite(lowBattLed, HIGH);
-      delay(550);
-      digitalWrite(lowBattLed, LOW);
-      delay(550);
+
     }
   }
 
   //sleep//
   goToSleep();
-
-}
-
-void loop() {
-
  }

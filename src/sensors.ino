@@ -17,10 +17,11 @@ int moistureLevel = 0;
 byte readSensor() {
     
     Blynk.run();
-    //turn on sensor//
-    sensorOn(HIGH);
 
     currentMillis = millis();
+
+    //turn on sensor//
+    sensorOn(HIGH);
 
     #ifdef serialdebug
         Serial.print("Sensor Time Elapsed - ");
@@ -32,8 +33,8 @@ byte readSensor() {
 
     //wait for sensorStabilizeSeconds to be greater than current seconds//
     if(currentMillis - connectMillis > (sensorStabilizeSeconds*1000)) {
-
-        //take 15 readings 1 per second//
+        
+        //take 15 readings//
         for (byte i = 0; i < 15; i++){
 
             sensorVal[i] = (analogRead(moistureSensor));
@@ -43,7 +44,6 @@ byte readSensor() {
                 Serial.print(" = ");
                 Serial.println(sensorVal[i]);
             #endif
-            delay(1000);
         }
     
         //take an average of the 15 readings//
@@ -52,7 +52,6 @@ byte readSensor() {
         #ifdef serialdebug
             Serial.print("Average = ");
             Serial.println(sensorValue);
-            delay(1000);
         #endif
 
         //map and constrain sensorValue to a moistureLevel between 0 - 100//
@@ -69,6 +68,9 @@ byte readSensor() {
         sensorOn(LOW);
 
         return(moistureLevel);
+
+        a = 1; //set a = 1; to exit while loop in main.ino
+
     }
 }
 
@@ -91,7 +93,6 @@ void sensorOn(bool on){
         #endif
 
         digitalWrite(activateMoistureSensor, LOW);
-        a = 1; //set a = 1; to exit while loop in main.ino
     }
 }
 
@@ -120,10 +121,9 @@ bool readBatteryLevel() {
     if(currentMillis - lastPumpMillis > secondsToWaitAfterPumping*1000){
 
         int sensorVal = 0;
-        for (byte i = 0; i < 10; i++) {
+        for (byte i = 0; i < 25; i++) {
 
         sensorVal = (sensorVal + digitalRead(lowBattSensor));
-        delay(150);
     }
 
         if(sensorVal > 0) {
