@@ -76,3 +76,35 @@ void blinkLED(byte blinkAmount){
     }
     digitalWrite(lowBattLed, LOW);
 }
+
+void dataSend(){ 
+
+    //write sensor val Blynk//
+    Blynk.virtualWrite(vMoistureLevel, (soilMoisture));
+
+    //write water level to blynk//
+    if(waterLevel == 1) {
+  
+        #ifdef serialdebug
+        Serial.println("Water level Low");
+        #endif
+
+        Blynk.virtualWrite(vLowWaterLevelIndicator, 255);
+
+    }
+
+    else {
+  
+        #ifdef serialdebug
+            Serial.println("Water level Ok");
+        #endif
+
+        Blynk.virtualWrite(vLowWaterLevelIndicator, 0);
+
+    }
+
+    //write battery level to blynk//
+    if(battLev == 0) Blynk.virtualWrite(vLowBatteryIndicator, 0);
+    else Blynk.virtualWrite(vLowBatteryIndicator, 255);
+
+}

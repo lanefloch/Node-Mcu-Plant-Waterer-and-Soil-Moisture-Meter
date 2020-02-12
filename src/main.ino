@@ -39,6 +39,7 @@ char pass[] = "buster95"; //Wifi Password
 /////////////////
 
 #define BLYNK_PRINT Serial
+BlynkTimer timer;
 
 //////////
 ///PINS///
@@ -112,6 +113,8 @@ void setup()
   // Debug console
   Serial.begin(115200);
 
+  timer.setInterval(750L, dataSend);
+
   blinkLED(10);
 }
 
@@ -121,17 +124,13 @@ void loop() {
 
   Blynk.run();
 
-   //Read sensor//
+  //Read sensor//
   while(a == 0) {
     soilMoisture = readSensor();
   }
-
+  
   lastSensorMillis = millis();
-
-  while(true) Serial.println("done"); delay(1500);
-
-  return;
-
+  
   #ifdef serialdebug
   Serial.print("waterOnOff = ");
   Serial.println(waterOnOff);
@@ -156,50 +155,22 @@ void loop() {
 
   lastPumpMillis = millis();
 
+  while(true) Serial.println("done"); delay(1500);
+
+
   //Read battery level//
   bool battLev;
   while(c == 0)  {
    battLev = readBatteryLevel();
  }
 
- //illuminate low batt led based on battlev//
- digitalWrite(lowBattLed, (!battLev));
-
-  //write battery level to blynk//
-  if(battLev == 0) Blynk.virtualWrite(vLowBatteryIndicator, 0);
-  else Blynk.virtualWrite(vLowBatteryIndicator, 255);
-
-  //write water level to blynk//
-  if(waterLevel == 1) {
-  
-    #ifdef serialdebug
-      Serial.println("Water level Low");
-    #endif
-
-    Blynk.virtualWrite(vLowWaterLevelIndicator, 255);
-
-  }
-
-  else {
-  
-    #ifdef serialdebug
-      Serial.println("Water level Ok");
-    #endif
-
-    Blynk.virtualWrite(vLowWaterLevelIndicator, 0);
-
-  }
-
-  //write sensor val Blynk//
-  Blynk.virtualWrite(vMoistureLevel, (soilMoisture));
+  //illuminate low batt led based on battlev//
+  digitalWrite(lowBattLed, (!battLev));
   
   if(battLev > 0) {
     WiFi.mode(WIFI_OFF);
     WiFi.forceSleepBegin();
-    delay(10);
-    while(true){
-
-    }
+    while(true) blinkLED(100);
   }
 
   //sleep//

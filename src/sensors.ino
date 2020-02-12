@@ -69,8 +69,6 @@ byte readSensor() {
 
         return(moistureLevel);
 
-        a = 1; //set a = 1; to exit while loop in main.ino
-
     }
 }
 
@@ -93,6 +91,7 @@ void sensorOn(bool on){
         #endif
 
         digitalWrite(activateMoistureSensor, LOW);
+        a = 1; //set a = 1; to exit while loop in main.ino
     }
 }
 
