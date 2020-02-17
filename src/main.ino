@@ -6,9 +6,12 @@
 ///SETTINGS///
 //////////////
 
+//#define resistiveSensor
+#define capacitiveSensor
+
 #define serialdebug //Serial Printouts for debugging
 
-#define shortenedDebugTimes //Shorten sleep and stabilize time to allow for easier debugging
+//#define shortenedDebugTimes //Shorten sleep and stabilize time to allow for easier debugging
 
 #define moisturePercentToWater 15 //At what soil moisture percent should the pump come on?
 
@@ -39,6 +42,7 @@ char pass[] = "buster95"; //Wifi Password
 /////////////////
 
 #define BLYNK_PRINT Serial
+BlynkTimer timer;
 
 //////////
 ///PINS///
@@ -69,6 +73,7 @@ char pass[] = "buster95"; //Wifi Password
 //////////////////////
 int soilMoisture = 0;
 bool battLev = 0;
+bool connected = 0;
 byte waterLevel;
 byte a = 0; // variable to lock into sensor mode
 byte b = 0; // variable to lock into pump mode
@@ -111,21 +116,25 @@ void setup()
   // Debug console
   Serial.begin(115200);
 
+  timer.setInterval(750L, dataSend);
+
+  blinkLED(2);
+}
+
+void loop() {
+
   //connect to blynk//
- connect();
+  if(connected == 0) connect(); connectMillis = millis();
 
   Blynk.run();
 
-  connectMillis = millis();
+  //Read sensor//
+  while(a == 0) {
+    soilMoisture = readSensor();
+  }
   
-   //Read sensor//
-   while(a == 0) {
-     soilMoisture = readSensor();
-     delay(150);
-   }
-
-   lastSensorMillis = millis();
-   
+  lastSensorMillis = millis();
+  
   #ifdef serialdebug
   Serial.print("waterOnOff = ");
   Serial.println(waterOnOff);
@@ -135,7 +144,14 @@ void setup()
 
   waterLevel = digitalRead(waterLevelSensor);
 
-  if(soilMoisture < moisturePercentToWater && waterOnOff == 1 && waterLevel) okToWater = 1;
+  #ifdef serialdebug
+
+  if(waterLevel == 0) Serial.println("water Level = OK");
+  else Serial.println("water Level = LOW");
+
+  #endif
+
+  if(soilMoisture < moisturePercentToWater && waterOnOff == 1 && waterLevel == 0) okToWater = 1;
   else okToWater = 0;
 
   #ifdef serialdebug
@@ -146,7 +162,6 @@ void setup()
    //pump water//
    while(b == 0){
      pump(okToWater);
-     delay(150);
    }
 
   lastPumpMillis = millis();
@@ -155,61 +170,17 @@ void setup()
   bool battLev;
   while(c == 0)  {
    battLev = readBatteryLevel();
-   delay(150);
  }
 
- //illuminate low batt led based on battlev//
- digitalWrite(lowBattLed, (!battLev));
-
-  //write battery level to blynk//
-  if(battLev == 0) Blynk.virtualWrite(vLowBatteryIndicator, 0);
-  else Blynk.virtualWrite(vLowBatteryIndicator, 255);
-
-  //write water level to blynk//
-  if(waterLevel == 1) {
+  //illuminate low batt led based on battlev//
+  digitalWrite(lowBattLed, (!battLev));
   
-  #ifdef serialdebug
-    Serial.println("Water level Low");
-  #endif
-
-  Blynk.virtualWrite(vLowWaterLevelIndicator, 255);
-
-  }
-
-  else {
-  
-  #ifdef serialdebug
-    Serial.println("Water level Ok");
-  #endif
-
-  Blynk.virtualWrite(vLowWaterLevelIndicator, 0);
-
-  }
-
-  //write sensor val Blynk//
-  Blynk.virtualWrite(vMoistureLevel, (soilMoisture));
-  
-  Blynk.run();
-
-  delay(1500);
-
   if(battLev > 0) {
     WiFi.mode(WIFI_OFF);
     WiFi.forceSleepBegin();
-    delay(10);
-    while(true){
-      digitalWrite(lowBattLed, HIGH);
-      delay(550);
-      digitalWrite(lowBattLed, LOW);
-      delay(550);
-    }
+    while(true) blinkLED(100);
   }
 
   //sleep//
   goToSleep();
-
-}
-
-void loop() {
-
  }

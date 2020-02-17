@@ -2,27 +2,49 @@
 ////////////////////////////Pump Control and watering.////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
 
+#ifdef serialdebug
+unsigned int pumpElapsedTime;
+unsigned int lastPumpElapsedTime;
+bool serialPumpOn = 1;
+#endif
+
 void pump(bool water) {
 
     Blynk.run();
+    
     int waterSeconds = (waterMl * 0.29);
+
+    currentMillis = millis();
 
     if(water == 1) {
 
-        #ifdef serialdebug
-            Serial.println("Turning on pump");
+        #ifdef serialdebug //Print "Turning on Pump"
+
+            if(serialPumpOn == 1){
+
+                Serial.println("Turning on pump");
+                serialPumpOn = 0;
+
+            }
+
         #endif
 
         digitalWrite(pumpPin, HIGH);
 
-        currentMillis = millis();
+        #ifdef serialdebug //print amount of ML pumped out of ML to pump
 
-        #ifdef serialdebug
-            Serial.print("Pumped ");
-            Serial.print(((currentMillis - lastSensorMillis) * 0.001) / 0.29, 0);
-            Serial.print(" ML Out Of ");
-            Serial.print((waterSeconds / 0.29), 0);
-            Serial.println(" ML");
+            pumpElapsedTime = ((currentMillis - lastSensorMillis) * 0.001) / 0.29;
+
+            if(lastPumpElapsedTime != pumpElapsedTime){
+
+                Serial.print("Pumped "); 
+                Serial.print(pumpElapsedTime);
+                lastPumpElapsedTime = pumpElapsedTime;
+                Serial.print(" ML Out Of ");
+                Serial.print((waterSeconds / 0.29), 0);
+                Serial.println(" ML");
+            }
+
         #endif
 
         if((currentMillis - lastSensorMillis) > (waterSeconds*1000)) {
