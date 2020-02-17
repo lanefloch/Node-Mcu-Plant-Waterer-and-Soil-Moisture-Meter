@@ -56,9 +56,15 @@ void goToSleep() {
 bool state = 1;
 unsigned long lastBlink;
 
+#ifdef serialdebug
+    bool serialBlink=1;
+#endif
+
 void blinkLED(byte blinkAmount){
 
-    for(byte i = 0; i < blinkAmount; i=i){
+    for(byte i = 0; i < (blinkAmount*2); i=i){
+
+        delay(10); //was hanging
 
         if(millis() - lastBlink > 800) {
             Blynk.run();
@@ -69,7 +75,17 @@ void blinkLED(byte blinkAmount){
         }
 
         #ifdef serialdebug
-            Serial.println("blinking lowBattLed");
+            
+
+            if(serialBlink == 1){
+
+                Serial.print("blinking lowBattLed ");
+                Serial.print(blinkAmount);
+                Serial.println(" times");
+                serialBlink = 0;
+
+            }
+
         #endif
 
         digitalWrite(lowBattLed, state);
@@ -84,20 +100,12 @@ void dataSend(){
 
     //write water level to blynk//
     if(waterLevel == 1) {
-  
-        #ifdef serialdebug
-        Serial.println("Water level Low");
-        #endif
 
         Blynk.virtualWrite(vLowWaterLevelIndicator, 255);
 
     }
 
     else {
-  
-        #ifdef serialdebug
-            Serial.println("Water level Ok");
-        #endif
 
         Blynk.virtualWrite(vLowWaterLevelIndicator, 0);
 

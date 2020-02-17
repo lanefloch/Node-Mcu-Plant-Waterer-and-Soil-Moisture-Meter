@@ -6,9 +6,12 @@
 ///SETTINGS///
 //////////////
 
+//#define resistiveSensor
+#define capacitiveSensor
+
 #define serialdebug //Serial Printouts for debugging
 
-#define shortenedDebugTimes //Shorten sleep and stabilize time to allow for easier debugging
+//#define shortenedDebugTimes //Shorten sleep and stabilize time to allow for easier debugging
 
 #define moisturePercentToWater 15 //At what soil moisture percent should the pump come on?
 
@@ -115,10 +118,11 @@ void setup()
 
   timer.setInterval(750L, dataSend);
 
-  blinkLED(10);
+  blinkLED(2);
 }
 
 void loop() {
+
   //connect to blynk//
   if(connected == 0) connect(); connectMillis = millis();
 
@@ -140,7 +144,14 @@ void loop() {
 
   waterLevel = digitalRead(waterLevelSensor);
 
-  if(soilMoisture < moisturePercentToWater && waterOnOff == 1 && waterLevel) okToWater = 1;
+  #ifdef serialdebug
+
+  if(waterLevel == 0) Serial.println("water Level = OK");
+  else Serial.println("water Level = LOW");
+
+  #endif
+
+  if(soilMoisture < moisturePercentToWater && waterOnOff == 1 && waterLevel == 0) okToWater = 1;
   else okToWater = 0;
 
   #ifdef serialdebug
@@ -154,9 +165,6 @@ void loop() {
    }
 
   lastPumpMillis = millis();
-
-  while(true) Serial.println("done"); delay(1500);
-
 
   //Read battery level//
   bool battLev;
