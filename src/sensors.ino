@@ -88,7 +88,7 @@ byte readSensor() {
         #ifdef capacitiveSensor
 
             //map and constrain sensorValue to a moistureLevel between 0 - 100//
-            moistureLevel = map(sensorValue, 108, 180, 100, 0);
+            moistureLevel = map(sensorValue, 108, 159, 100, 0); //108 is air, 180 is water
             moistureLevel = max(moistureLevel, 0);
             moistureLevel = min(moistureLevel, 100);
 
