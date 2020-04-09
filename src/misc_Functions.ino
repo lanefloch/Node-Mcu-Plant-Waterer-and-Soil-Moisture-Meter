@@ -116,3 +116,11 @@ void dataSend(){
     else Blynk.virtualWrite(vLowBatteryIndicator, 255);
 
 }
+
+void tweet(){
+    Blynk.tweet("I am a bamboo plant, my moisture level is " + String(soilMoisture) + "% ");
+    if(okToWater == 1){
+        Blynk.tweet("My soil moisture is below the " + String(moisturePercentToWater) + "% threshold I am adding " + String(waterMl) + "ml. of water.");
+    }
+    d = 1;
+}

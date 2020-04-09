@@ -13,7 +13,7 @@
 
 //#define shortenedDebugTimes //Shorten sleep and stabilize time to allow for easier debugging
 
-#define moisturePercentToWater 15 //At what soil moisture percent should the pump come on?
+#define moisturePercentToWater 30 //At what soil moisture percent should the pump come on?
 
 char auth[] = "zClZn8Pvs0p05s1Ft0E41HCQ-v7pEfS3"; //Blynk Auth Code
 char ssid[] = "flochwireless"; //Wifi SSID
@@ -78,6 +78,7 @@ byte waterLevel;
 byte a = 0; // variable to lock into sensor mode
 byte b = 0; // variable to lock into pump mode
 byte c = 0; //variable to lock into batt sense mode
+byte d = 0; // variable to lock into tweet mode
 unsigned long currentMillis;
 unsigned long lastSensorMillis;
 unsigned long lastPumpMillis;
@@ -170,6 +171,10 @@ void loop() {
   bool battLev;
   while(c == 0)  {
    battLev = readBatteryLevel();
+ }
+ 
+ while(d == 0){
+   tweet();
  }
 
   //illuminate low batt led based on battlev//

@@ -101,6 +101,7 @@ byte readSensor() {
 
         //turn off sensor//
         sensorOn(LOW);
+        
         Blynk.virtualWrite(vMoistureLevel, (moistureLevel));
         return(moistureLevel);
 
